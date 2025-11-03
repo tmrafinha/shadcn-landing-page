@@ -22,8 +22,8 @@ function App() {
       <Navbar />
       <Hero />
       <Sponsors />
-      <ProblemSection />
       <About />
+      <ProblemSection />
       <HowItWorks />
       {/* <Features /> */}
       {/* <Services /> */}

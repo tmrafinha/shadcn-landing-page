@@ -8,7 +8,7 @@ export const ProblemSection = () => {
       <h2 className="text-3xl md:text-4xl font-bold mb-4">
         O que o modelo tradicional{" "}
         <span className="bg-gradient-to-b from-[#22c55e]/60 to-[#16a34a] text-transparent bg-clip-text">
-          não te conta
+          não te contam
         </span>{" "}
         sobre conseguir uma vaga...
       </h2>
