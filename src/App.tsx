@@ -23,13 +23,13 @@ function App() {
       <Sponsors />
       <About />
       <HowItWorks />
-      <Features />
-      <Services />
-      <Cta />
+      {/* <Features /> */}
+      {/* <Services /> */}
+      {/* <Cta /> */}
       <Testimonials />
       <Team />
-      <Pricing />
-      <Newsletter />
+      {/* <Pricing /> */}
+      {/* <Newsletter /> */}
       <FAQ />
       <Footer />
       <ScrollToTop />

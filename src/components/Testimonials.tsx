@@ -16,83 +16,77 @@ interface TestimonialProps {
 
 const testimonials: TestimonialProps[] = [
   {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe",
-    comment: "This landing page is awesome!",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Lucas Andrade",
+    userName: "Desenvolvedor Front-end",
+    comment:
+      "Em menos de duas semanas depois de fazer o teste, fui chamado pra três entrevistas. Hoje estou alocado como PJ em um projeto com a Yamaha!",
   },
   {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe1",
+    image: "https://randomuser.me/api/portraits/women/68.jpg",
+    name: "Marina Silva",
+    userName: "Dev Full Stack",
     comment:
-      "Lorem ipsum dolor sit amet,empor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.",
-  },
-
-  {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe2",
-    comment:
-      "Lorem ipsum dolor sit amet,exercitation. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.",
+      "A GoDev me ajudou a encontrar uma vaga que fazia sentido pro meu perfil. O processo foi rápido, direto e humano. Recomendo demais!",
   },
   {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe3",
+    image: "https://randomuser.me/api/portraits/men/56.jpg",
+    name: "Felipe Ramos",
+    userName: "Engenheiro de Software",
     comment:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+      "Eu já estava cansado de mandar currículo no LinkedIn. Entrei no Banco de Talentos da GoDev e em menos de 10 dias fechei contrato com uma startup incrível.",
   },
   {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe4",
+    image: "https://randomuser.me/api/portraits/women/75.jpg",
+    name: "Juliana Costa",
+    userName: "Desenvolvedora Back-end",
     comment:
-      "Lorem ipsum dolor sit amet, tempor incididunt  aliqua. Ut enim ad minim veniam, quis nostrud.",
+      "Achei que precisaria de mais experiência pra conseguir algo bom, mas a GoDev realmente conecta a gente com empresas que valorizam nosso potencial.",
   },
   {
-    image: "https://github.com/shadcn.png",
-    name: "John Doe React",
-    userName: "@john_Doe5",
+    image: "https://randomuser.me/api/portraits/men/83.jpg",
+    name: "Rafael Martins",
+    userName: "Dev Mobile",
     comment:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Passei no teste da GoDev, tirei nota 8.2 e recebi 5 oportunidades reais. Hoje presto serviço pra uma empresa da Stellantis.",
+  },
+  {
+    image: "https://randomuser.me/api/portraits/women/12.jpg",
+    name: "Carla Ferreira",
+    userName: "Analista de Sistemas",
+    comment:
+      "A proposta da GoDev é diferente de tudo que já vi. Eles realmente se preocupam em entender o perfil técnico e comportamental de cada candidato.",
   },
 ];
 
 export const Testimonials = () => {
   return (
-    <section
-      id="testimonials"
-      className="container py-24 sm:py-32"
-    >
+    <section id="testimonials" className="container py-24 sm:py-32">
       <h2 className="text-3xl md:text-4xl font-bold">
-        Discover Why
-        <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
-          {" "}
-          People Love{" "}
+        Por que os profissionais{" "}
+        <span className="bg-gradient-to-b from-[#22c55e]/60 to-[#16a34a] text-transparent bg-clip-text">
+          confiam na GoDev
         </span>
-        This Landing Page
       </h2>
 
       <p className="text-xl text-muted-foreground pt-4 pb-8">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Non unde error
-        facere hic reiciendis illo
+        Veja histórias reais de desenvolvedores e profissionais tech que
+        participaram do{" "}
+        <strong>Banco de Talentos GoDev™</strong> e conquistaram entrevistas e
+        contratos com grandes empresas.
       </p>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 sm:block columns-2  lg:columns-3 lg:gap-6 mx-auto space-y-4 lg:space-y-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 sm:block columns-2 lg:columns-3 lg:gap-6 mx-auto space-y-4 lg:space-y-6">
         {testimonials.map(
           ({ image, name, userName, comment }: TestimonialProps) => (
             <Card
-              key={userName}
+              key={name}
               className="max-w-md md:break-inside-avoid overflow-hidden"
             >
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <Avatar>
-                  <AvatarImage
-                    alt=""
-                    src={image}
-                  />
-                  <AvatarFallback>OM</AvatarFallback>
+                  <AvatarImage alt={name} src={image} />
+                  <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                 </Avatar>
 
                 <div className="flex flex-col">

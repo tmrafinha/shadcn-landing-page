@@ -13,77 +13,64 @@ interface FAQProps {
 
 const FAQList: FAQProps[] = [
   {
-    question: "Is this template free?",
-    answer: "Yes. It is a free ChadcnUI template.",
+    question: "O cadastro na GoDev é realmente gratuito?",
+    answer:
+      "Sim! Todo o processo é 100% gratuito — desde o Teste de Competência GoDev™ até a inclusão no nosso Banco de Talentos. Você só precisa preencher o teste e pronto, nossa equipe faz o resto.",
     value: "item-1",
   },
   {
-    question: "Lorem ipsum dolor sit amet consectetur adipisicing elit?",
+    question: "Como funciona o Teste de Competência GoDev™?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint labore quidem quam? Consectetur sapiente iste rerum reiciendis animi nihil nostrum sit quo, modi quod.",
+      "O teste avalia suas principais habilidades técnicas e comportamentais, levando menos de 3 minutos para ser concluído. Ele nos ajuda a identificar as oportunidades ideais para o seu perfil.",
     value: "item-2",
   },
   {
-    question:
-      "Lorem ipsum dolor sit amet  Consectetur natus dolores minus quibusdam?",
+    question: "Posso conseguir vagas CLT e também PJ?",
     answer:
-      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Labore qui nostrum reiciendis veritatis necessitatibus maxime quis ipsa vitae cumque quo?",
+      "Sim! A GoDev conecta profissionais de tecnologia a empresas que contratam tanto no modelo CLT quanto PJ. Você escolhe o formato que faz mais sentido pra sua realidade.",
     value: "item-3",
   },
   {
-    question: "Lorem ipsum dolor sit amet, consectetur adipisicing elit?",
-    answer: "Lorem ipsum dolor sit amet consectetur, adipisicing elit.",
+    question: "O que significa '5 entrevistas garantidas'?",
+    answer:
+      "Significa que, se sua nota for acima de 7 no Teste de Competência, nossa equipe garante o envio do seu perfil para pelo menos 5 oportunidades reais com empresas parceiras.",
     value: "item-4",
   },
   {
-    question:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur natus?",
+    question: "Em quanto tempo posso ser chamado para uma entrevista?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint labore quidem quam? Consectetur sapiente iste rerum reiciendis animi nihil nostrum sit quo, modi quod.",
+      "Na média, os profissionais qualificados são contatados por empresas em até 10 dias após entrarem no Banco de Talentos GoDev™ — dependendo da demanda de cada stack.",
     value: "item-5",
   },
 ];
 
 export const FAQ = () => {
   return (
-    <section
-      id="faq"
-      className="container py-24 sm:py-32"
-    >
+    <section id="faq" className="container py-24 sm:py-32">
       <h2 className="text-3xl md:text-4xl font-bold mb-4">
-        Frequently Asked{" "}
-        <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
-          Questions
+        Perguntas{" "}
+        <span className="bg-gradient-to-b from-[#22c55e]/60 to-[#16a34a] text-transparent bg-clip-text">
+          Frequentes
         </span>
       </h2>
 
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full AccordionRoot"
-      >
+      <Accordion type="single" collapsible className="w-full AccordionRoot">
         {FAQList.map(({ question, answer, value }: FAQProps) => (
-          <AccordionItem
-            key={value}
-            value={value}
-          >
-            <AccordionTrigger className="text-left">
-              {question}
-            </AccordionTrigger>
-
+          <AccordionItem key={value} value={value}>
+            <AccordionTrigger className="text-left">{question}</AccordionTrigger>
             <AccordionContent>{answer}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
 
       <h3 className="font-medium mt-4">
-        Still have questions?{" "}
+        Ainda ficou com dúvida?{" "}
         <a
           rel="noreferrer noopener"
           href="#"
-          className="text-primary transition-all border-primary hover:border-b-2"
+          className="text-[#16a34a] transition-all border-[#16a34a] hover:border-b-2"
         >
-          Contact us
+          Fale com a gente
         </a>
       </h3>
     </section>

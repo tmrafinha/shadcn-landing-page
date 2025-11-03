@@ -2,26 +2,65 @@ export const LogoIcon = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="lucide lucide-panels-top-left mr-2 w-6 h-6"
+      viewBox="0 0 760 560"
+      className="w-14 h-14" // 🔥 aumentei aqui
     >
+      <defs>
+        <linearGradient id="godev-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#00C46C" />
+          <stop offset="100%" stopColor="#A6FFCB" />
+        </linearGradient>
+      </defs>
+
+      {/* Toggle verde */}
       <rect
-        width="18"
-        height="18"
-        x="3"
-        y="3"
-        rx="2"
+        x="10" // 🔹 leve ajuste pra centralizar após aumento
+        y="100"
+        width="740"
+        height="360"
+        rx="180"
+        fill="url(#godev-gradient)"
       />
-      <path d="M3 9h18" />
-      <path d="M9 21V9" />
+
+      {/* Círculo preto */}
+      <circle cx="180" cy="280" r="120" fill="#0B0B0B" />
+
+      {/* Símbolo </> com barra ajustada */}
+      <g transform="translate(0, 15)">
+        {/* < */}
+        <path
+          d="M420 300l-60-45 60-45"
+          stroke="#FFFFFF"
+          strokeWidth="30"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+
+        {/* > */}
+        <path
+          d="M560 210l60 45-60 45"
+          stroke="#FFFFFF"
+          strokeWidth="30"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+
+        {/* / (mais alta e centralizada) */}
+        <path
+          d="M510 165l-40 170"
+          stroke="#FFFFFF"
+          strokeWidth="30"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </g>
     </svg>
   );
 };
+
 
 export const MedalIcon = () => {
   return (
