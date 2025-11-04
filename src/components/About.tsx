@@ -26,9 +26,9 @@ export const About = () => {
                 seja <strong>CLT</strong> ou <strong>PJ</strong>.
               </p>
 
-              <p className="text-xl text-muted-foreground mt-4">
+              {/* <p className="text-xl text-muted-foreground mt-4">
                 Atuamos como uma ponte entre fornecedores de tecnologia e oportunidades reais
-              </p>
+              </p> */}
 
               <p className="text-xl text-muted-foreground mt-4">
                 Através do <strong>Banco de Talentos GoDev™</strong> e do{" "}
