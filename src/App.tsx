@@ -15,6 +15,7 @@ import { Sponsors } from "./components/Sponsors";
 import { Testimonials } from "./components/Testimonials";
 import "./App.css";
 import { ProblemSection } from "./components/ProblemSection";
+import { Cta } from "./components/Cta";
 
 function App() {
   return (
@@ -27,8 +28,9 @@ function App() {
       <HowItWorks />
       {/* <Features /> */}
       {/* <Services /> */}
-      {/* <Cta /> */}
+      
       <Testimonials />
+      <Cta />
       {/* <Team /> */}
       {/* <Pricing /> */}
       {/* <Newsletter /> */}

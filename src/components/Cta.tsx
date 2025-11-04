@@ -4,32 +4,35 @@ export const Cta = () => {
   return (
     <section
       id="cta"
-      className="bg-muted/50 py-16 my-24 sm:my-32"
+      className="bg-muted/50 py-20 mb-10  sm:my-32 border-t border-b"
     >
-      <div className="container lg:grid lg:grid-cols-2 place-items-center">
-        <div className="lg:col-start-1">
-          <h2 className="text-3xl md:text-4xl font-bold ">
-            All Your
-            <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
-              {" "}
-              Ideas & Concepts{" "}
+      <div className="container lg:grid lg:grid-cols-2 place-items-center gap-12">
+        <div className="lg:col-start-1 text-center lg:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            Dê o próximo passo na sua{" "}
+            <span className="bg-gradient-to-b from-[#22c55e]/60 to-[#16a34a] text-transparent bg-clip-text">
+              jornada como dev
             </span>
-            In One Interface
           </h2>
-          <p className="text-muted-foreground text-xl mt-4 mb-8 lg:mb-0">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque,
-            beatae. Ipsa tempore ipsum iste quibusdam illum ducimus eos. Quasi,
-            sed!
+          <p className="text-muted-foreground text-xl mt-4 mb-8">
+            Mostre seu potencial com o{" "}
+            <strong>Teste de Competência GoDev™</strong> e entre para o{" "}
+            <strong>Banco de Talentos GoDev™</strong>. Nossa equipe conecta você
+            diretamente com empresas que{" "}
+            <strong>valorizam habilidade e resultado</strong> — não só um
+            currículo.
           </p>
         </div>
 
-        <div className="space-y-4 lg:col-start-2">
-          <Button className="w-full md:mr-4 md:w-auto">Request a Demo</Button>
+        <div className="space-y-4 flex flex-col items-center lg:items-end w-full">
+          <Button className="w-full md:w-auto text-lg px-8 py-6 font-semibold">
+            Fazer o Teste de Competência
+          </Button>
           <Button
             variant="outline"
-            className="w-full md:w-auto"
+            className="w-full md:w-auto text-lg px-8 py-6 font-semibold"
           >
-            View all features
+            Acessar o Banco de Talentos
           </Button>
         </div>
       </div>
