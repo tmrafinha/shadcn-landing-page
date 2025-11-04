@@ -2,7 +2,7 @@ export const ProblemSection = () => {
   return (
     <section
       id="problem"
-      className="container py-24 sm:py-32 text-center"
+      className="container py-6 sm:py-6 text-center"
     >
       {/* Título */}
       <h2 className="text-3xl md:text-4xl font-bold mb-4">

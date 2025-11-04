@@ -16,47 +16,48 @@ interface TestimonialProps {
 
 const testimonials: TestimonialProps[] = [
   {
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "Lucas Andrade",
-    userName: "Desenvolvedor Front-end",
+    image: "images/prova-social-02.jpeg",
+    name: "Juliano Costa",
+    userName: "Dev Back-end",
     comment:
-      "Em menos de duas semanas depois de fazer o teste, fui chamado pra três entrevistas. Hoje estou alocado como PJ em um projeto com a Yamaha!",
+      "Eu tava há meses tentando uma vaga decente... e nada. E o que me deixava mais bravo é que meu currículo era melhor do que muito dev e mesmo assim nada de me chamarem pras entrevistas... Vi um post da godev e fiz o teste de competencia sem pretensão, hoje tô alocado num projeto PJ super massa e recebendo bem melhor. Recomendo!",
   },
   {
-    image: "https://randomuser.me/api/portraits/women/68.jpg",
-    name: "Marina Silva",
-    userName: "Dev Full Stack",
-    comment:
-      "A GoDev me ajudou a encontrar uma vaga que fazia sentido pro meu perfil. O processo foi rápido, direto e humano. Recomendo demais!",
-  },
-  {
-    image: "https://randomuser.me/api/portraits/men/56.jpg",
-    name: "Felipe Ramos",
-    userName: "Engenheiro de Software",
-    comment:
-      "Eu já estava cansado de mandar currículo no LinkedIn. Entrei no Banco de Talentos da GoDev e em menos de 10 dias fechei contrato com uma startup incrível.",
-  },
-  {
-    image: "https://randomuser.me/api/portraits/women/75.jpg",
-    name: "Juliana Costa",
-    userName: "Desenvolvedora Back-end",
-    comment:
-      "Achei que precisaria de mais experiência pra conseguir algo bom, mas a GoDev realmente conecta a gente com empresas que valorizam nosso potencial.",
-  },
-  {
-    image: "https://randomuser.me/api/portraits/men/83.jpg",
+    image: "images/prova-social-04.jpeg",
     name: "Rafael Martins",
     userName: "Dev Mobile",
     comment:
-      "Passei no teste da GoDev, tirei nota 8.2 e recebi 5 oportunidades reais. Hoje presto serviço pra uma empresa da Stellantis.",
+      "Tirei 8.2 no teste e em poucos dias fiz 2 entrevistas. Fechei com uma empresa que presta serviço pra Stellantis.",
   },
   {
-    image: "https://randomuser.me/api/portraits/women/12.jpg",
-    name: "Carla Ferreira",
-    userName: "Analista de Sistemas",
-    comment:
-      "A proposta da GoDev é diferente de tudo que já vi. Eles realmente se preocupam em entender o perfil técnico e comportamental de cada candidato.",
-  },
+  image: "images/prova-social-03.jpeg",
+  name: "Carlos Ferreira",
+  userName: "Analista de Sistemas",
+  comment:
+    "Me chamaram pra uma vaga CLT top, empresa da VR, Gym Pass, tenho vários arregos...",
+},
+{
+  image: "https://randomuser.me/api/portraits/men/32.jpg",
+  name: "Lucas Andrade",
+  userName: "Front-end Developer",
+  comment:
+    "Tava meio de saco cheio de tanto aplicar pra vaga, sério. Entrei no Banco de Talentos achando que ia ser mais do mesmo... mas em menos de duas semanas já tava em entrevista marcada. Hoje tô alocado num projeto PJ, contrato de 15k mês.",
+},
+{
+  image: "images/prova-social-01.jpeg",
+  name: "Gabriel Neres",
+  userName: "Full Stack Dev",
+  comment:
+    "Só me frustrei durante meses no LinkedIn... aquilo virou uma mer**. Conheci a go dev pelo insta, entrei pro banco e começaram a aparecer várias entrevistas, não só CLT mas bastante projetos PJ tambem.",
+},
+{
+  image: "https://randomuser.me/api/portraits/men/56.jpg",
+  name: "Felipe Ramos",
+  userName: "Engenheiro de Software",
+  comment:
+    "Sendo bem real, entrei achando que era mais um site genérico. Mas os caras entregam mesmo. Fiz o teste, fui aprovado e em 22 dias tava com contrato assinado. Hoje indico pra todo mundo que quer sair da mesmice.",
+},
+
 ];
 
 export const Testimonials = () => {
@@ -70,10 +71,9 @@ export const Testimonials = () => {
       </h2>
 
       <p className="text-xl text-muted-foreground pt-4 pb-8">
-        Veja histórias reais de desenvolvedores e profissionais tech que
-        participaram do{" "}
-        <strong>Banco de Talentos GoDev</strong> e conquistaram entrevistas e
-        contratos com grandes empresas.
+        Depoimentos reais de devs que entraram no{" "}
+        <strong>Banco de Talentos GoDev™</strong> e conseguiram entrevistas,
+        contratos e a liberdade de escolher onde trabalhar.
       </p>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 sm:block columns-2 lg:columns-3 lg:gap-6 mx-auto space-y-4 lg:space-y-6">
@@ -81,7 +81,7 @@ export const Testimonials = () => {
           ({ image, name, userName, comment }: TestimonialProps) => (
             <Card
               key={name}
-              className="max-w-md md:break-inside-avoid overflow-hidden"
+              className="max-w-md md:break-inside-avoid overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <Avatar>
@@ -90,12 +90,14 @@ export const Testimonials = () => {
                 </Avatar>
 
                 <div className="flex flex-col">
-                  <CardTitle className="text-lg">{name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{name}</CardTitle>
                   <CardDescription>{userName}</CardDescription>
                 </div>
               </CardHeader>
 
-              <CardContent>{comment}</CardContent>
+              <CardContent className="text-muted-foreground text-[15px] leading-relaxed">
+                {comment}
+              </CardContent>
             </Card>
           )
         )}

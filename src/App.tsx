@@ -2,7 +2,7 @@ import { About } from "./components/About";
 // import { Cta } from "./components/Cta";
 import { FAQ } from "./components/FAQ";
 // import { Features } from "./components/Features";
-import { Footer } from "./components/Footer";
+// import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { Navbar } from "./components/Navbar";
@@ -33,7 +33,7 @@ function App() {
       {/* <Pricing /> */}
       {/* <Newsletter /> */}
       <FAQ />
-      <Footer />
+      {/* <Footer /> */}
       <ScrollToTop />
     </>
   );
