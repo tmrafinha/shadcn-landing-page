@@ -72,7 +72,7 @@ export const Testimonials = () => {
       <p className="text-xl text-muted-foreground pt-4 pb-8">
         Veja histórias reais de desenvolvedores e profissionais tech que
         participaram do{" "}
-        <strong>Banco de Talentos GoDev™</strong> e conquistaram entrevistas e
+        <strong>Banco de Talentos GoDev</strong> e conquistaram entrevistas e
         contratos com grandes empresas.
       </p>
 

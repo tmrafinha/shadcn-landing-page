@@ -11,7 +11,7 @@ import { Navbar } from "./components/Navbar";
 import { ScrollToTop } from "./components/ScrollToTop";
 // import { Services } from "./components/Services";
 import { Sponsors } from "./components/Sponsors";
-import { Team } from "./components/Team";
+// import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
 import "./App.css";
 import { ProblemSection } from "./components/ProblemSection";
@@ -29,7 +29,7 @@ function App() {
       {/* <Services /> */}
       {/* <Cta /> */}
       <Testimonials />
-      <Team />
+      {/* <Team /> */}
       {/* <Pricing /> */}
       {/* <Newsletter /> */}
       <FAQ />

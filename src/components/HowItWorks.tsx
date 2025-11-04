@@ -1,42 +1,47 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { MedalIcon, MapIcon, PlaneIcon, GiftIcon } from "../components/Icons";
+import {
+  MedalIcon,    
+  PlaneIcon,   
+  ChartIcon,
+  MagnifierIcon,     
+} from "../components/Icons";
 
-interface FeatureProps {
+interface StepProps {
   icon: JSX.Element;
   title: string;
   description: string;
 }
 
-const features: FeatureProps[] = [
+const steps: StepProps[] = [
   {
     icon: <MedalIcon />,
-    title: "1. Faça o Teste",
+    title: "1. Teste GoDev™",
     description:
-      "Complete o Teste de Competência GoDev™ gratuitamente e descubra sua nota de compatibilidade com o mercado tech.",
+      "Faça o Teste de Competência GoDev™ e descubra sua nota de compatibilidade com o mercado de tecnologia.",
   },
   {
-    icon: <MapIcon />,
-    title: "2. Entre no Banco",
+    icon: <MagnifierIcon />,
+    title: "2. Banco de Talentos",
     description:
-      "Seja adicionado ao Banco de Talentos GoDev™ e fique visível para empresas que estão contratando agora.",
+      "Com base na sua nota, você entra para o Banco de Talentos GoDev™ — onde empresas parceiras encontram profissionais prontos.",
+  },
+  {
+    icon: <ChartIcon />,
+    title: "3. Entrevistas Reais",
+    description:
+      "Os candidatos com melhor desempenho são indicados para até 5 entrevistas reais com empresas parceiras (CLT ou PJ).",
   },
   {
     icon: <PlaneIcon />,
-    title: "3. Receba Entrevistas",
+    title: "4. Conquiste a Vaga",
     description:
-      "Com uma pontuação acima de 7, você garante até 5 entrevistas reais com empresas parceiras, CLT ou PJ.",
-  },
-  {
-    icon: <GiftIcon />,
-    title: "4. Conquiste a Oportunidade",
-    description:
-      "Aproveite as conexões criadas pela GoDev e dê o próximo passo na sua carreira tech.",
+      "Você é contratado por empresas que valorizam performance e o que você realmente sabe fazer.",
   },
 ];
 
 export const HowItWorks = () => {
   return (
-    <section id="howItWorks" className="container text-center py-24 sm:py-32">
+    <section id="howItWorks" className="container text-center py-10 sm:py-32">
       <h2 className="text-3xl md:text-4xl font-bold">
         Como{" "}
         <span className="bg-gradient-to-b from-[#22c55e]/60 to-[#16a34a] text-transparent bg-clip-text">
@@ -45,21 +50,27 @@ export const HowItWorks = () => {
         o Processo
       </h2>
 
-      <p className="md:w-3/4 mx-auto mt-4 mb-8 text-xl text-muted-foreground">
-        Veja como o processo da <strong>GoDev</strong> conecta você a
-        oportunidades reais — de forma simples, gratuita e transparente.
+      <p className="md:w-3/4 mx-auto mt-4 mb-12 text-xl text-muted-foreground">
+        Simples, direto e eficiente — o caminho para conquistar sua vaga tech em 4 etapas.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {features.map(({ icon, title, description }: FeatureProps) => (
-          <Card key={title} className="bg-muted/50">
+        {steps.map(({ icon, title, description }: StepProps) => (
+          <Card
+            key={title}
+            className="bg-muted/40 border border-[#16a34a]/20 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 rounded-2xl"
+          >
             <CardHeader>
-              <CardTitle className="grid gap-4 place-items-center">
-                {icon}
+              <CardTitle className="grid gap-4 place-items-center text-xl font-semibold">
+                <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[#16a34a]/10">
+                  {icon}
+                </div>
                 {title}
               </CardTitle>
             </CardHeader>
-            <CardContent>{description}</CardContent>
+            <CardContent className="text-muted-foreground text-lg">
+              {description}
+            </CardContent>
           </Card>
         ))}
       </div>
