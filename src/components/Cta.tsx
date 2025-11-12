@@ -4,7 +4,7 @@ export const Cta = () => {
   return (
     <section
       id="cta"
-      className="bg-muted/50 py-20 mb-10  sm:my-32 border-t border-b"
+      className="bg-muted/50 py-20 mb-10  sm:my-32 border-t border-b m-4"
     >
       <div className="container lg:grid lg:grid-cols-2 place-items-center gap-12">
         <div className="lg:col-start-1 text-center lg:text-left">
@@ -28,12 +28,12 @@ export const Cta = () => {
           <Button className="w-full md:w-auto text-lg px-8 py-6 font-semibold">
             Fazer o Teste de Competência
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full md:w-auto text-lg px-8 py-6 font-semibold"
           >
             Acessar o Banco de Talentos
-          </Button>
+          </Button> */}
         </div>
       </div>
     </section>

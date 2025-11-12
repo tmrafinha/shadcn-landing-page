@@ -1,44 +1,25 @@
-import { About } from "./components/About";
-// import { Cta } from "./components/Cta";
-import { FAQ } from "./components/FAQ";
-// import { Features } from "./components/Features";
-// import { Footer } from "./components/Footer";
-import { Hero } from "./components/Hero";
-import { HowItWorks } from "./components/HowItWorks";
-import { Navbar } from "./components/Navbar";
-// import { Newsletter } from "./components/Newsletter";
-// import { Pricing } from "./components/Pricing";
-import { ScrollToTop } from "./components/ScrollToTop";
-// import { Services } from "./components/Services";
-import { Sponsors } from "./components/Sponsors";
-// import { Team } from "./components/Team";
-import { Testimonials } from "./components/Testimonials";
-import "./App.css";
-import { ProblemSection } from "./components/ProblemSection";
-import { Cta } from "./components/Cta";
+import "./App.css"; // 👈 volta esse import aqui
 
-function App() {
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LandingPage } from "./pages/landing-page";
+import QuizPage from "./components/Quizz";
+import Cadastro from "./components/Cadastro";
+
+export default function App() {
   return (
-    <>
-      <Navbar />
-      <Hero />
-      <Sponsors />
-      <About />
-      <ProblemSection />
-      <HowItWorks />
-      {/* <Features /> */}
-      {/* <Services /> */}
-      
-      <Testimonials />
-      <Cta />
-      {/* <Team /> */}
-      {/* <Pricing /> */}
-      {/* <Newsletter /> */}
-      <FAQ />
-      {/* <Footer /> */}
-      <ScrollToTop />
-    </>
+    <BrowserRouter>
+      <Routes>
+        {/* Use UMA das duas opções: */}
+        {/* A) Se a LandingPage já renderiza tudo sozinha: */}
+        {/* <Route path="/" element={<LandingPage />} /> */}
+
+        {/* B) Se prefere montar as seções aqui: */}
+        <Route path="/" element={<LandingPage />} />
+
+        <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/quizz" element={<QuizPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;

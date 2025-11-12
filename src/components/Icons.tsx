@@ -1,20 +1,30 @@
-export const LogoIcon = () => {
+import React from "react";
+
+type LogoIconProps = {
+  size?: number | string;
+  className?: string;
+};
+
+export const LogoIcon: React.FC<LogoIconProps> = ({ size = 56, className }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 760 560"
-      className="w-14 h-14" // 🔥 aumentei aqui
+      width={size}
+      height={size}
+      className={className}
     >
       <defs>
+        {/* Gradiente que usa a cor do tema Tailwind */}
         <linearGradient id="godev-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#00C46C" />
-          <stop offset="100%" stopColor="#A6FFCB" />
+          <stop offset="0%" stopColor="hsl(var(--primary))" />
+          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
         </linearGradient>
       </defs>
 
-      {/* Toggle verde */}
+      {/* Retângulo com gradiente do tema */}
       <rect
-        x="10" // 🔹 leve ajuste pra centralizar após aumento
+        x="10"
         y="100"
         width="740"
         height="360"
@@ -25,9 +35,8 @@ export const LogoIcon = () => {
       {/* Círculo preto */}
       <circle cx="180" cy="280" r="120" fill="#0B0B0B" />
 
-      {/* Símbolo </> com barra ajustada */}
+      {/* Símbolo </> branco */}
       <g transform="translate(0, 15)">
-        {/* < */}
         <path
           d="M420 300l-60-45 60-45"
           stroke="#FFFFFF"
@@ -36,8 +45,6 @@ export const LogoIcon = () => {
           strokeLinejoin="round"
           fill="none"
         />
-
-        {/* > */}
         <path
           d="M560 210l60 45-60 45"
           stroke="#FFFFFF"
@@ -46,8 +53,6 @@ export const LogoIcon = () => {
           strokeLinejoin="round"
           fill="none"
         />
-
-        {/* / (mais alta e centralizada) */}
         <path
           d="M510 165l-40 170"
           stroke="#FFFFFF"
@@ -60,6 +65,7 @@ export const LogoIcon = () => {
     </svg>
   );
 };
+
 
 
 export const MedalIcon = () => {
