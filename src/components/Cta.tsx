@@ -25,9 +25,10 @@ export const Cta = () => {
         </div>
 
         <div className="space-y-4 flex flex-col items-center lg:items-end w-full">
+          <a href="/cadastro">
           <Button className="w-full md:w-auto text-lg px-8 py-6 font-semibold">
             Fazer o Teste de Competência
-          </Button>
+          </Button></a>
           {/* <Button
             variant="outline"
             className="w-full md:w-auto text-lg px-8 py-6 font-semibold"

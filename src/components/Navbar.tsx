@@ -12,10 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { buttonVariants } from "./ui/button";
 import { Menu } from "lucide-react";
-import { ModeToggle } from "./mode-toggle";
 import { LogoIcon } from "./Icons";
 
 interface RouteProps {
@@ -25,16 +23,12 @@ interface RouteProps {
 
 const routeList: RouteProps[] = [
   {
-    href: "#features",
-    label: "Features",
+    href: "#howItWorks",
+    label: "Como funciona",
   },
   {
     href: "#testimonials",
-    label: "Testimonials",
-  },
-  {
-    href: "#pricing",
-    label: "Pricing",
+    label: "Casos de Sucesso",
   },
   {
     href: "#faq",
@@ -61,7 +55,7 @@ export const Navbar = () => {
 
           {/* mobile */}
           <span className="flex md:hidden">
-            <ModeToggle />
+            {/* <ModeToggle /> */}
 
             <Sheet
               open={isOpen}
@@ -78,8 +72,11 @@ export const Navbar = () => {
 
               <SheetContent side={"left"}>
                 <SheetHeader>
-                  <SheetTitle className="font-bold text-xl">
-                    Shadcn/React
+                  <SheetTitle className="font-bold text-2xl">
+                        <div className="flex items-center gap-2">
+                          <span>GoDev</span>
+                    <LogoIcon />
+                        </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col justify-center items-center gap-2 mt-4">
@@ -94,7 +91,7 @@ export const Navbar = () => {
                       {label}
                     </a>
                   ))}
-                  <a
+                  {/* <a
                     rel="noreferrer noopener"
                     href="https://github.com/leoMirandaa/shadcn-landing-page.git"
                     target="_blank"
@@ -104,7 +101,7 @@ export const Navbar = () => {
                   >
                     <GitHubLogoIcon className="mr-2 w-5 h-5" />
                     Github
-                  </a>
+                  </a> */}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -126,7 +123,7 @@ export const Navbar = () => {
             ))}
           </nav>
 
-          <div className="hidden md:flex gap-2">
+          {/* <div className="hidden md:flex gap-2">
             <a
               rel="noreferrer noopener"
               href="https://github.com/leoMirandaa/shadcn-landing-page.git"
@@ -138,7 +135,7 @@ export const Navbar = () => {
             </a>
 
             <ModeToggle />
-          </div>
+          </div> */}
         </NavigationMenuList>
       </NavigationMenu>
     </header>

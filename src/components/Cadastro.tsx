@@ -14,7 +14,7 @@ import {
 import { useAppNavigate } from "@/hooks/useNavigate";
 
 const WEBHOOK_URL =
-  "https://webhook.sellflux.app/v2/webhook/custom/a813dd16614d6a96b6178b1b13806da9?name=name&email=email&phone=phone";
+  "https://webhook.sellflux.app/v2/webhook/custom/e061f0ce616e947efaba0dc2b2fd2cab?name=name&email=email&phone=phone";
 
 const USER_STORE_KEY = "goDevUser";
 
@@ -300,12 +300,12 @@ export default function Cadastro() {
             // Sucesso
             <div className="text-center animate-in fade-in slide-in-from-top duration-700">
 
-              <h1 className="text-4xl md:text-5xl font-black mb-3 text-green-600 dark:text-green-400">
-                Cadastro concluído!
+              <h1 className="text-xl md:text-5xl font-black mb-3 text-green-600 dark:text-green-400">
+                Tudo pronto <span className="text-white">para <br /> começar o </span>teste!
               </h1>
               <p className="text-muted-foreground max-w-xl mx-auto">
-                Parabéns! 🎉 Agora você está pronto para iniciar o{" "}
-                <span className="text-primary font-semibold">teste de competência</span>{" "}
+                Parabéns! 🎉 Faça o teste agora para entrar no{" "}
+                <span className="text-primary font-semibold">Banco de Talentos</span>{" "}
                 da <span className="text-primary font-bold">Go Dev</span>.
               </p>
 
