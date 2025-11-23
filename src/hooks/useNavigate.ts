@@ -13,5 +13,6 @@ export function useAppNavigate() {
     goHome: () => navigate("/"),
     goToCadastro: () => navigate("/cadastro"),
     goToQuiz: () => navigate("/quizz"),
+    goToTesteDePersonalidade: () => navigate("/teste-de-personalidade"),
   };
 }

@@ -14,12 +14,12 @@ import {
 import { useAppNavigate } from "@/hooks/useNavigate";
 
 const WEBHOOK_URL =
-  "https://webhook.sellflux.app/v2/webhook/custom/e061f0ce616e947efaba0dc2b2fd2cab?name=name&email=email&phone=phone";
+  "https://webhook.sellflux.app/v2/webhook/custom/21013a82106dc39c8eb89bb9d42073d5";
 
 const USER_STORE_KEY = "goDevUser";
 
-export default function Cadastro() {
-  const { goToQuiz } = useAppNavigate();
+export default function CadastroTestePersonalidade() {
+  const { goToTesteDePersonalidade } = useAppNavigate();
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,7 +49,6 @@ export default function Cadastro() {
     if (!formValid) return;
 
     try {
-      
       setLoading(true);
       await axios.post(
         WEBHOOK_URL,
@@ -83,33 +82,10 @@ export default function Cadastro() {
     }
   }
 
-  // function reset() {
-  //   setSuccess(false);
-  //   setError(null);
-  //   setName("");
-  //   setEmail("");
-  //   setPhone("");
-  //   setTouched({ name: false, email: false, phone: false });
-  // }
-
   return (
     <section className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-3xl w-full">
-        {/* ✅ Novo header com logo e saudação */}
-        {/* <div className="flex flex-col items-center mb-10 text-center animate-in fade-in duration-700">
-          <div className="flex flex-col items-center w-full mb-8 text-zinc-300">
-              <LogoIcon size={80}/>
-          <div>Conectamos fornecedores de tencologia à empresas contratando, seja CLT ou PJ</div>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">
-           🚀 Seja bem-vindo à <br /><span className="text-primary">Go Dev</span> 
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Preencha o formulário abaixo para realizar o teste de competência e entrar no nosso <span className="text-primary">banco de talentos</span>.
-          </p>
-        </div> */}
-
-        {/* Header original do formulário */}
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
@@ -117,7 +93,7 @@ export default function Cadastro() {
                 <FileText className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-muted-foreground text-sm">Teste de Competência</div>
+                <div className="text-muted-foreground text-sm">Teste de Personalidade</div>
                 <div className="text-foreground font-semibold">
                   Identificação
                 </div>
@@ -146,7 +122,7 @@ export default function Cadastro() {
           </div>
         </div>
 
-        {/* ✅ Card do formulário — mesmo comportamento de antes */}
+        {/* Card do formulário */}
         <div className="bg-card border border-border rounded-2xl p-8 mb-6 animate-in slide-in-from-right duration-500">
           {!success ? (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -154,7 +130,7 @@ export default function Cadastro() {
                 Preencha seus dados
               </h2>
               <p className="text-muted-foreground">
-                Precisamos das seguintes informações para começar o teste.
+                Precisamos das seguintes informações para começar o teste de personalidade.
               </p>
 
               {/* Nome */}
@@ -299,14 +275,12 @@ export default function Cadastro() {
           ) : (
             // Sucesso
             <div className="text-center animate-in fade-in slide-in-from-top duration-700">
-
               <h1 className="text-xl md:text-5xl font-black mb-3 text-green-600 dark:text-green-400">
                 Tudo pronto <span className="text-white">para <br /> começar o </span>teste!
               </h1>
               <p className="text-muted-foreground max-w-xl mx-auto">
-                Parabéns! 🎉 Faça o teste agora para entrar no{" "}
-                <span className="text-primary font-semibold">Banco de Talentos</span>{" "}
-                da <span className="text-primary font-bold">Go Dev</span>.
+                Agora você está pronto para realizar o{" "}
+                <span className="text-primary font-semibold">Teste de Personalidade Go Dev™</span>.
               </p>
 
               <div className="bg-muted/50 rounded-xl p-6 border border-border mt-8 text-left">
@@ -315,33 +289,23 @@ export default function Cadastro() {
                   O que você precisa saber
                 </h3>
                 <ul className="list-disc pl-6 text-muted-foreground space-y-1">
-                  <li>O teste contém <strong>30 perguntas objetivas</strong>.</li>
-                  <li>Você terá <strong>30 minutos</strong> para completar tudo.</li>
-                  <li>Este teste avalia suas habilidades técnicas e raciocínio lógico.</li>
+                  <li>O teste contém <strong>30 perguntas de autoavaliação</strong>.</li>
+                  <li>Você terá até <strong>30 minutos</strong> para responder com calma.</li>
+                  <li>O foco aqui não é te avaliar tecnicamente, mas entender <strong>como você gosta de atuar em time</strong>.</li>
                   <li>
-                    Ao final, seu desempenho poderá garantir sua vaga no{" "}
-                    <span className="text-primary font-semibold">banco de talentos da Go Dev</span>.
+                    Esse resultado será usado junto com o teste técnico para montar{" "}
+                    <span className="text-primary font-semibold">seu perfil completo no Banco de Talentos Go Dev</span>.
                   </li>
                 </ul>
               </div>
 
               <Button
-                onClick={goToQuiz}
+                onClick={goToTesteDePersonalidade}
                 className="mt-8 w-full h-14 text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 Começar o teste agora
               </Button>
-
-              {/* <Button
-                onClick={reset}
-                variant="outline"
-                className="mt-4 w-full h-14 text-lg font-bold transition-all duration-300 hover:shadow-lg"
-              >
-                <RotateCcw className="w-5 h-5 mr-2" />
-                Voltar ao início
-              </Button> */}
             </div>
-
           )}
         </div>
       </div>

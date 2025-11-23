@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LandingPage } from "./pages/landing-page";
 import QuizPage from "./components/Quizz";
 import Cadastro from "./components/Cadastro";
+import PersonalityTestPage from "./components/Teste-de-personalidade";
+import CadastroTestePersonalidade from "./components/Cadastro-teste-de-personalidade";
 
 export default function App() {
   return (
@@ -18,6 +20,8 @@ export default function App() {
 
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/quizz" element={<QuizPage />} />
+        <Route path="/teste-de-personalidade" element={<PersonalityTestPage />} />
+        <Route path="/cadastro-teste-de-personalidade" element={<CadastroTestePersonalidade />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
