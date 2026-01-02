@@ -1,12 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  Brain,
-  Timer as TimerIcon,
-  ShieldCheck,
-  BarChart3,
-} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import { Brain, Timer as TimerIcon, ShieldCheck, BarChart3 } from "lucide-react";
 import { LogoIcon } from "@/components/Icons";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +23,10 @@ type StoredUser = {
 const QUIZ_MINUTES = 30;
 const QUIZ_SECONDS = QUIZ_MINUTES * 60;
 const USER_STORE_KEY = "goDevUser";
+
+// ✅ Webhook (o que você mandou no começo)
+const WEBHOOK_URL =
+  "https://webhook.sellflux.app/v2/webhook/custom/12477b486ff542b7732204b07628ddf6";
 
 const personalityOptions = [
   "Discordo totalmente",
@@ -76,13 +76,7 @@ const questions: PersonalityQuestion[] = [
 
 const traitProfiles: Record<
   TraitKey,
-  {
-    label: string;
-    headline: string;
-    description: string;
-    strengths: string[];
-    idealEnv: string;
-  }
+  { label: string; headline: string; description: string; strengths: string[]; idealEnv: string }
 > = {
   executor: {
     label: "Executor",
@@ -95,8 +89,7 @@ const traitProfiles: Record<
       "Gosto por assumir responsabilidade",
       "Ajuda o time a sair da inércia",
     ],
-    idealEnv:
-      "Ambientes com desafios reais, metas claras, prazos definidos e espaço pra liderança técnica.",
+    idealEnv: "Ambientes com desafios reais, metas claras, prazos definidos e espaço pra liderança técnica.",
   },
   analitico: {
     label: "Analítico",
@@ -123,8 +116,7 @@ const traitProfiles: Record<
       "Preocupação com clima e alinhamento",
       "Ajuda a reduzir ruído e conflitos",
     ],
-    idealEnv:
-      "Times com colaboração forte, squads multidisciplinares, contato com produto, cliente e outras áreas.",
+    idealEnv: "Times com colaboração forte, squads multidisciplinares, contato com produto, cliente e outras áreas.",
   },
   inovador: {
     label: "Inovador",
@@ -137,26 +129,33 @@ const traitProfiles: Record<
       "Capacidade de conectar ideias diferentes",
       "Conforto em testar e iterar",
     ],
-    idealEnv:
-      "Projetos com espaço pra experimentação, discovery, inovação contínua e melhoria de produto.",
+    idealEnv: "Projetos com espaço pra experimentação, discovery, inovação contínua e melhoria de produto.",
   },
 };
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
 
 export default function PersonalityTestPage() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<StoredUser | null>(null);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>(
-    Array(questions.length).fill(null)
-  );
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
   const [showResult, setShowResult] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const [secondsLeft, setSecondsLeft] = useState(QUIZ_SECONDS);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Progresso (baseado em quantas foram respondidas)
+  // ✅ envio pro webhook (igual referência: { name, email, phone })
+  const sentRef = useRef(false);
+  const [sending, setSending] = useState(false);
+  const [sentOk, setSentOk] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  // Progresso
   useEffect(() => {
     const answeredCount = answers.filter((a) => a !== null).length;
     setProgress((answeredCount / questions.length) * 100);
@@ -199,32 +198,14 @@ export default function PersonalityTestPage() {
     }
   }, [navigate]);
 
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-  const timeStr = `${String(minutes).padStart(2, "0")}:${String(
-    seconds
-  ).padStart(2, "0")}`;
+  const timeStr = useMemo(() => {
+    const minutes = Math.floor(secondsLeft / 60);
+    const seconds = secondsLeft % 60;
+    return `${pad2(minutes)}:${pad2(seconds)}`;
+  }, [secondsLeft]);
 
-  const handleOptionClick = (index: number) => {
-    setAnswers((prev) => {
-      const clone = [...prev];
-      clone[current] = index;
-      return clone;
-    });
-
-    // Avança automático
-    if (current + 1 < questions.length) {
-      setTimeout(() => {
-        setCurrent((c) => (c < questions.length - 1 ? c + 1 : c));
-      }, 200);
-    } else {
-      setTimeout(() => {
-        finalize();
-      }, 200);
-    }
-  };
-
-  const computeTraitScores = () => {
+  // Resultado (continua calculando localmente só pra exibir)
+  const traitScores = useMemo(() => {
     const scores: Record<TraitKey, number> = {
       executor: 0,
       analitico: 0,
@@ -234,39 +215,95 @@ export default function PersonalityTestPage() {
 
     questions.forEach((q, i) => {
       const ans = answers[i];
-      if (ans !== null) {
-        // escala 1 a 5 (index 0–4 → valor 1–5)
-        scores[q.trait] += ans + 1;
-      }
+      if (ans !== null) scores[q.trait] += ans + 1; // 1..5
     });
 
     return scores;
-  };
+  }, [answers]);
+
+  const sortedTraits = useMemo(() => {
+    return (Object.keys(traitScores) as TraitKey[]).sort((a, b) => traitScores[b] - traitScores[a]);
+  }, [traitScores]);
+
+  const mainTrait = sortedTraits[0] ?? "executor";
+  const profile = traitProfiles[mainTrait];
+
+  const totalTimeUsed = useMemo(() => QUIZ_SECONDS - secondsLeft, [secondsLeft]);
+  const usedTimeStr = useMemo(() => {
+    const usedMinutes = Math.max(0, Math.floor(totalTimeUsed / 60));
+    const usedSeconds = Math.max(0, totalTimeUsed % 60);
+    return `${pad2(usedMinutes)}:${pad2(usedSeconds)}`;
+  }, [totalTimeUsed]);
+
+  const traitMaxScore = useMemo(() => {
+    const max: Record<TraitKey, number> = { executor: 0, analitico: 0, colaborador: 0, inovador: 0 };
+    (Object.keys(max) as TraitKey[]).forEach((t) => {
+      const count = questions.filter((q) => q.trait === t).length;
+      max[t] = count * 5;
+    });
+    return max;
+  }, []);
 
   const finalize = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setShowResult(true);
   };
 
-  // Resultado
+  const sendToWebhook = async () => {
+    if (!user) return;
+
+    setSending(true);
+    setSendError(null);
+
+    try {
+      // ✅ estrutura idêntica à referência (somente name/email/phone)
+      await axios.post(
+        WEBHOOK_URL,
+        { name: user.name, email: user.email, phone: user.phone },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      setSentOk(true);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Falha ao enviar. Tente novamente.";
+      setSendError(msg);
+      setSentOk(false);
+      // permite tentar de novo
+      sentRef.current = false;
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // ✅ dispara envio ao finalizar (uma vez só)
+  useEffect(() => {
+    if (!showResult) return;
+    if (!user) return;
+    if (sentRef.current) return;
+
+    sentRef.current = true;
+    sendToWebhook();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResult, user]);
+
+  const handleOptionClick = (index: number) => {
+    setAnswers((prev) => {
+      const clone = [...prev];
+      clone[current] = index;
+      return clone;
+    });
+
+    if (current + 1 < questions.length) {
+      setTimeout(() => setCurrent((c) => (c < questions.length - 1 ? c + 1 : c)), 200);
+    } else {
+      setTimeout(() => finalize(), 200);
+    }
+  };
+
+  // RESULTADO
   if (showResult) {
-    const traitScores = computeTraitScores();
-
-    const sortedTraits = (Object.keys(traitScores) as TraitKey[]).sort(
-      (a, b) => traitScores[b] - traitScores[a]
-    );
-
-    const mainTrait = sortedTraits[0];
-    const profile = traitProfiles[mainTrait];
-
-    const totalTimeUsed = QUIZ_SECONDS - secondsLeft;
-    const usedMinutes = Math.max(0, Math.floor(totalTimeUsed / 60));
-    const usedSeconds = Math.max(0, totalTimeUsed % 60);
-    const usedTimeStr = `${String(usedMinutes).padStart(
-      2,
-      "0"
-    )}:${String(usedSeconds).padStart(2, "0")}`;
-
     return (
       <section className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-3xl w-full">
@@ -274,35 +311,79 @@ export default function PersonalityTestPage() {
             <LogoIcon />
           </div>
 
+          {/* ✅ Card verde bem explícito */}
+          <div className="mb-5 border border-green-500/30 bg-green-500/10 rounded-2xl p-5 animate-in fade-in slide-in-from-top duration-500">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-green-700 dark:text-green-300 font-semibold">
+                  Próximo passo: aguarde o contato do time da Go Dev ✅
+                </p>
+                <p className="text-sm text-green-800/80 dark:text-green-200/80 mt-1">
+                  Seu cadastro foi registrado. Agora é só aguardar: o time da Go Dev vai analisar e entrar em contato com você.
+                </p>
+              </div>
+
+              {/* Status do webhook */}
+              <div className="text-right">
+                {sending && (
+                  <p className="text-xs text-green-800/70 dark:text-green-200/70 font-semibold">
+                    Enviando...
+                  </p>
+                )}
+                {!sending && sentOk && (
+                  <p className="text-xs text-green-800/80 dark:text-green-200/80 font-semibold">
+                    Enviado ✅
+                  </p>
+                )}
+                {!sending && sendError && (
+                  <p className="text-xs text-red-700 dark:text-red-300 font-semibold">
+                    Erro ao enviar
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {sendError && (
+              <div className="mt-3 text-sm text-red-700 dark:text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl p-3">
+                {sendError}
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // retry manual
+                      if (!user) return;
+                      sentRef.current = true;
+                      sendToWebhook();
+                    }}
+                    className="px-3 py-2 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/15 transition text-xs font-semibold"
+                  >
+                    Tentar enviar novamente
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700">
             <h1 className="text-2xl md:text-4xl font-black mb-3 text-foreground">
-              Resultado do{" "}
-              <span className="text-primary">Teste de Personalidade GoDev™</span>
+              Resultado do <span className="text-primary">Teste de Personalidade GoDev™</span>
             </h1>
             <p className="text-muted-foreground">
               O objetivo desse teste é te ajudar a entender{" "}
-              <span className="font-semibold">
-                como você atua dentro de times de tecnologia
-              </span>
-              , não te encaixar em uma caixa fixa. 😉
+              <span className="font-semibold">como você atua dentro de times de tecnologia</span>, não te encaixar em
+              uma caixa fixa. 😉
             </p>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-8 mb-6">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-foreground mb-1">
-                Seu perfil predominante:
-              </h2>
-              <p className="text-2xl font-bold text-primary">
-                {profile.label}
-              </p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">Seu perfil predominante:</h2>
+              <p className="text-2xl font-bold text-primary">{profile.label}</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Tempo total de conclusão:{" "}
-                <span className="font-semibold">{usedTimeStr}</span>
+                Tempo total de conclusão: <span className="font-semibold">{usedTimeStr}</span>
               </p>
               <p className="text-xs text-muted-foreground">
-                (Esse tempo é só um indicador do seu ritmo de resposta — não
-                muda o seu perfil.)
+                (Esse tempo é só um indicador do seu ritmo de resposta — não muda o seu perfil.)
               </p>
             </div>
 
@@ -311,16 +392,12 @@ export default function PersonalityTestPage() {
                 <Brain className="w-5 h-5 text-primary" />
                 {profile.headline}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {profile.description}
-              </p>
+              <p className="text-muted-foreground leading-relaxed">{profile.description}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="bg-muted/50 rounded-xl p-5 border border-border">
-                <h4 className="font-semibold text-foreground mb-2">
-                  Seus pontos fortes naturais
-                </h4>
+                <h4 className="font-semibold text-foreground mb-2">Seus pontos fortes naturais</h4>
                 <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
                   {profile.strengths.map((s) => (
                     <li key={s}>{s}</li>
@@ -328,12 +405,8 @@ export default function PersonalityTestPage() {
                 </ul>
               </div>
               <div className="bg-muted/50 rounded-xl p-5 border border-border">
-                <h4 className="font-semibold text-foreground mb-2">
-                  Tipo de ambiente que tende a te favorecer
-                </h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {profile.idealEnv}
-                </p>
+                <h4 className="font-semibold text-foreground mb-2">Tipo de ambiente que tende a te favorecer</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">{profile.idealEnv}</p>
               </div>
             </div>
 
@@ -342,37 +415,29 @@ export default function PersonalityTestPage() {
                 <BarChart3 className="w-5 h-5 text-primary" />
                 Como ficaram seus outros traços de perfil
               </h4>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                {(Object.keys(traitProfiles) as TraitKey[]).map((trait) => (
-                  <div key={trait} className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        {traitProfiles[trait].label}
-                      </span>
-                      <span className="text-foreground font-semibold">
-                        {traitScores[trait]}
-                      </span>
+                {(Object.keys(traitProfiles) as TraitKey[]).map((trait) => {
+                  const max = traitMaxScore[trait] || 1;
+                  const pct = Math.min(100, (traitScores[trait] / max) * 100);
+
+                  return (
+                    <div key={trait} className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">{traitProfiles[trait].label}</span>
+                        <span className="text-foreground font-semibold">{traitScores[trait]}</span>
+                      </div>
+                      <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary/70" style={{ width: `${pct}%` }} />
+                      </div>
                     </div>
-                    <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary/70"
-                        style={{
-                          width: `${
-                            (traitScores[trait] /
-                              (questions.length * 5)) *
-                            100 *
-                            2
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
               <p className="text-xs text-muted-foreground mt-3">
-                Importante: você não é só um tipo. Você tem um pouco de cada
-                traço — aqui a gente só mostra qual deles apareceu com mais
-                força nesse momento.
+                Importante: você não é só um tipo. Você tem um pouco de cada traço — aqui a gente só mostra qual deles
+                apareceu com mais força nesse momento.
               </p>
             </div>
 
@@ -382,19 +447,8 @@ export default function PersonalityTestPage() {
                 Próximos passos com a Go Dev
               </h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                A ideia é usar esse resultado junto com o{" "}
-                <span className="font-semibold">
-                  Teste de Competência Técnica
-                </span>{" "}
-                pra entender não só <strong>o que você sabe</strong>, mas{" "}
-                <strong>como você gosta de atuar em time</strong>.
-                <br />
-                <br />
-                Em breve o time da{" "}
-                <span className="text-primary font-semibold">Go Dev</span> vai
-                analisar seu perfil completo e{" "}
-                <strong>entrar em contato com você</strong> pra alinhar as
-                melhores oportunidades que combinem com seu jeito de trabalhar.
+                Agora é só aguardar: o time da <span className="text-primary font-semibold">Go Dev</span> vai analisar seu
+                perfil completo e <strong>entrar em contato com você</strong>.
               </p>
             </div>
           </div>
@@ -408,7 +462,7 @@ export default function PersonalityTestPage() {
   return (
     <section className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-3xl w-full">
-        {/* Header com Logo + Timer + Progresso */}
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -416,9 +470,7 @@ export default function PersonalityTestPage() {
                 <LogoIcon size={24} />
               </div>
               <div>
-                <div className="text-muted-foreground text-sm">
-                  {user?.name}
-                </div>
+                <div className="text-muted-foreground text-sm">{user?.name}</div>
                 <div className="text-foreground font-semibold">
                   Pergunta {current + 1} de {questions.length}
                 </div>
@@ -432,10 +484,7 @@ export default function PersonalityTestPage() {
           </div>
 
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
@@ -446,11 +495,7 @@ export default function PersonalityTestPage() {
           </h2>
 
           <p className="text-xs text-muted-foreground mb-4">
-            Responda pensando em como você{" "}
-            <span className="font-semibold">
-              costuma agir na maioria das vezes
-            </span>
-            , não em situações isoladas.
+            Responda pensando em como você <span className="font-semibold">costuma agir na maioria das vezes</span>, não em situações isoladas.
           </p>
 
           <div className="space-y-3 mb-6">
@@ -481,12 +526,9 @@ export default function PersonalityTestPage() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Não existe resposta certa ou errada aqui — é um teste de{" "}
-            <strong>estilo de atuação</strong>, não de conhecimento técnico.
+            Não existe resposta certa ou errada aqui — é um teste de <strong>estilo de atuação</strong>, não de conhecimento técnico.
           </p>
         </div>
-
-        {/* Sem botão de próxima — avanço automático */}
       </div>
     </section>
   );
