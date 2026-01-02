@@ -441,8 +441,7 @@ const questions: Question[] = [
   },
   // 39. React: useEffect dispara quando? (médio)
   {
-    question:
-      "Com `useEffect(() => {...}, [])`, quando o efeito roda?",
+    question: "Com `useEffect(() => {...}, [])`, quando o efeito roda?",
     options: [
       "A cada render",
       "Somente no mount (e cleanup no unmount)",
@@ -604,7 +603,7 @@ export default function QuizPage() {
   const [attempts, setAttempts] = useState<number>(0);
   const [locked, setLocked] = useState<boolean>(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Progresso
   useEffect(() => {
@@ -702,13 +701,7 @@ export default function QuizPage() {
     const baseUrl =
       "https://webhook.sellflux.app/v2/webhook/custom/3b49a118dfb7fc66cbc4631ff08351c0?name=name&email=email&phone=phone";
 
-    // const params = new URLSearchParams({
-    //   name: storedUser.name,
-    //   email: storedUser.email,
-    //   phone: storedUser.phone,
-    // });
-
-      fetch(baseUrl, {
+    fetch(baseUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -719,13 +712,18 @@ export default function QuizPage() {
     }).catch(() => {
       // silencioso pra não quebrar a experiência do usuário
     });
-    };
+  };
 
   const finalize = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    // dispara webhook ao finalizar
-    sendResultToWebhook(user);
+    // ✅ só dispara webhook se a nota for acima de 7
+    const gradeRaw = (score / questions.length) * 10;
+    const approved = gradeRaw > 7; // se quiser "7 ou mais", troque para: >= 7
+
+    if (approved) {
+      sendResultToWebhook(user);
+    }
 
     setShowExplanation(false);
     setShowResult(true);
@@ -829,9 +827,7 @@ export default function QuizPage() {
           <div className="bg-card border border-border rounded-2xl p-8 mb-6">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-3 mb-4">
-                <div className="text-5xl font-black text-primary">
-                  {score}
-                </div>
+                <div className="text-5xl font-black text-primary">{score}</div>
                 <div className="text-2xl text-muted-foreground font-light">
                   /
                 </div>
@@ -889,9 +885,7 @@ export default function QuizPage() {
                 <LogoIcon size={24} />
               </div>
               <div>
-                <div className="text-muted-foreground text-sm">
-                  {user?.name}
-                </div>
+                <div className="text-muted-foreground text-sm">{user?.name}</div>
                 <div className="text-foreground font-semibold">
                   Questão {current + 1} de {questions.length}
                 </div>
