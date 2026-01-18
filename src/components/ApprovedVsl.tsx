@@ -4,10 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Timer as TimerIcon, Volume2 } from "lucide-react";
 
-type ApprovedVSLProps = {
-  onUnlock: () => void;
-};
-
 const REQUIRED_PERCENT = 98;
 
 // ✅ autoplay mutado (funciona no browser)
@@ -26,7 +22,7 @@ const VIMEO_SRC =
   "&portrait=0" +
   "&keyboard=0";
 
-export function ApprovedVSL({ onUnlock }: ApprovedVSLProps) {
+export function ApprovedVSL() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<any>(null);
 
@@ -206,7 +202,7 @@ export function ApprovedVSL({ onUnlock }: ApprovedVSLProps) {
   const progressWidth = `${Math.min(100, Math.max(0, uiPercent))}%`;
 
   const buttonLabel = useMemo(() => {
-    if (unlocked) return "Garantir meu acesso agora";
+    if (unlocked) return "Garantir meu acesso";
     return `Assista até ${REQUIRED_PERCENT}% para liberar`;
   }, [unlocked, uiPercent]);
 
@@ -333,15 +329,17 @@ export function ApprovedVSL({ onUnlock }: ApprovedVSLProps) {
       </div>
 
       {/* CTA */}
-      <a href="https://pay.kiwify.com.br/J4oFiud">
-        <Button
+      <Button
         className="w-full h-14 text-lg font-black mt-5 shadow-lg hover:shadow-xl"
         disabled={!unlocked}
-        onClick={onUnlock}
-      >
+        type="button"
+        onClick={() => {
+            if (!unlocked) return;
+            window.location.href = "https://pay.kiwify.com.br/J4oFiud";
+        }}
+        >
         {buttonLabel}
       </Button>
-      </a>
     </div>
   );
 }
