@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Timer as TimerIcon, Volume2 } from "lucide-react";
+import { Timer as TimerIcon, Volume2 } from "lucide-react";
 
 const REQUIRED_PERCENT = 98;
 
@@ -41,11 +41,6 @@ export function ApprovedVSL() {
   const [startingAudio, setStartingAudio] = useState(false);
 
   // --- Função: acelera o começo e estabiliza depois (visual only)
-  // Regras:
-  // - no começo, dá um boost
-  // - no meio, boost menor
-  // - no final, sem boost (converge pro real)
-  // - nunca chega a 100% antes do real
   const computeUiPercent = (real: number) => {
     let boost = 0;
 
@@ -54,10 +49,7 @@ export function ApprovedVSL() {
     else if (real < 70) boost = 6;
     else boost = 0;
 
-    // Evita ficar muito "mentiroso"
     const value = Math.min(real + boost, 99);
-
-    // E jamais deixa o UI cair abaixo do real (não faz sentido pro usuário)
     return Math.max(real, value);
   };
 
@@ -137,7 +129,6 @@ export function ApprovedVSL() {
             setRealPercent(real);
             setUiPercent((prev) => {
               const next = computeUiPercent(real);
-              // deixa a UI "subir" de forma suave, sem dar saltos reversos
               return Math.max(prev, next);
             });
           }
@@ -203,8 +194,8 @@ export function ApprovedVSL() {
 
   const buttonLabel = useMemo(() => {
     if (unlocked) return "Garantir meu acesso";
-    return `Assista até ${REQUIRED_PERCENT}% para liberar`;
-  }, [unlocked, uiPercent]);
+    return `Assista para liberar`;
+  }, [unlocked]);
 
   // Clique para ativar áudio e reiniciar do começo
   const startWithAudioFromBeginning = async () => {
@@ -213,27 +204,19 @@ export function ApprovedVSL() {
     setStartingAudio(true);
 
     try {
-      // Reinicia tudo visual e real (pra ficar honesto com “começar do início”)
+      // Reinicia tudo visual e real
       maxWatchedRef.current = 0;
       setRealPercent(0);
       setUiPercent(0);
       setUnlocked(false);
 
-      // volta pro começo
       await playerRef.current.setCurrentTime(0);
-
-      // volume no talo
       await playerRef.current.setVolume(1);
-
-      // liga áudio
       await playerRef.current.setMuted(false);
-
-      // play
       await playerRef.current.play();
 
       setSoundEnabled(true);
     } catch {
-      // Se algo falhar, pelo menos tenta tocar
       try {
         await playerRef.current.setMuted(false);
         await playerRef.current.setVolume(1);
@@ -248,27 +231,24 @@ export function ApprovedVSL() {
   };
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 md:p-8 mt-6">
-      {/* Headline */}
-      <div className="mb-5">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-semibold">
-          <ShieldCheck className="w-4 h-4" />
-          Você foi aprovado no Banco de Talentos
-        </div>
+    <div className="max-w-3xl mx-auto">
 
-        <h2 className="text-2xl md:text-3xl font-black text-foreground mt-3">
-          Você passou com nota <span className="text-primary">acima de 7</span>.
-          <br />
-          Agora assista o vídeo abaixo pra liberar o próximo passo.
+
+      {/* Headline única (vsl-style) */}
+      <div className="text-center mb-4">
+        <h2 className="text-2xl md:text-4xl font-black text-foreground leading-tight">
+          Nós vamos garantir que você ganhe {" "}
+          <span className="text-primary">pelo menos 7k/mês</span> sendo um fornecedor de tecnologia em  
+          <span className="text-primary"> 60 dias</span>  ou menos
         </h2>
-
-        <p className="text-muted-foreground mt-2">
-          O vídeo começa automaticamente (mutado por regra do navegador). Clique
-          em “Iniciar com áudio” para ouvir desde o começo.
+        <p className="text-sm md:text-base text-muted-foreground mt-2">
+          Assista ao vídeo{" "}
+          <span className="text-primary">até o final</span> para liberar o
+          próximo passo
         </p>
       </div>
 
-      {/* Vídeo */}
+      {/* Vídeo (sem card grande, bem “VSL simples”) */}
       <div className="rounded-2xl overflow-hidden border border-border bg-muted/30 relative">
         <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
           <iframe
@@ -287,9 +267,9 @@ export function ApprovedVSL() {
           />
         </div>
 
-        {/* Botão de áudio: reinicia do 0 e ativa som em 100% */}
+        {/* Botão de áudio */}
         {!soundEnabled && (
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-3 right-3">
             <Button
               type="button"
               variant="secondary"
@@ -298,19 +278,19 @@ export function ApprovedVSL() {
               disabled={!ready || startingAudio}
             >
               <Volume2 className="w-4 h-4" />
-              {startingAudio ? "" : "Iniciar com áudio (do início)"}
+              {startingAudio ? "Iniciando..." : "Ativar áudio (do início)"}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Progresso */}
-      <div className="mt-5">
-        <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+      {/* Progresso (pequeno, discreto) */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
           <div className="flex items-center gap-2">
             <TimerIcon className="w-4 h-4" />
             <span>
-              Progresso do vídeo:{" "}
+              Progresso:{" "}
               <span className="font-semibold text-foreground">{uiPercent}%</span>
             </span>
           </div>
@@ -320,7 +300,7 @@ export function ApprovedVSL() {
           </span>
         </div>
 
-        <div className="w-full bg-muted h-3 rounded-full overflow-hidden">
+        <div className="w-full bg-muted h-2.5 rounded-full overflow-hidden">
           <div
             className="h-full bg-primary transition-all duration-300 ease-out"
             style={{ width: progressWidth }}
@@ -334,10 +314,10 @@ export function ApprovedVSL() {
         disabled={!unlocked}
         type="button"
         onClick={() => {
-            if (!unlocked) return;
-            window.location.href = "https://pay.kiwify.com.br/J4oFiud";
+          if (!unlocked) return;
+          window.location.href = "https://pay.kiwify.com.br/J4oFiud";
         }}
-        >
+      >
         {buttonLabel}
       </Button>
     </div>
