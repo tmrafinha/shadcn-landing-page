@@ -5,7 +5,7 @@ interface Question {
   explanation: string;
 }
 
-export const questions2: Question[] = [
+export const questions: Question[] = [
   // 1. Git/DevOps
   {
     question:
@@ -556,7 +556,7 @@ export const questions2: Question[] = [
   },
 ];
 
-export const questions: Question[] = [
+export const questions2: Question[] = [
   // 1. Git/DevOps
   {
     question:
