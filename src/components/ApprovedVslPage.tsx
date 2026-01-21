@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 import { LogoIcon } from "@/components/Icons";
 import { AlertCircle, Trophy } from "lucide-react";
 import { ApprovedVSL } from "./ApprovedVsl";
 
-const USER_STORE_KEY = "goDevUser";
+// const USER_STORE_KEY = "goDevUser";
 
 export default function ApprovedVslPage() {
-  const navigate = useNavigate();
+//   const navigate = useNavigate();
 
-  useEffect(() => {
-    // impede cair aqui “direto” sem cadastro
-    const raw = localStorage.getItem(USER_STORE_KEY);
-    if (!raw) navigate("/cadastro", { replace: true });
-  }, [navigate]);
+//   useEffect(() => {
+//     // impede cair aqui “direto” sem cadastro
+//     const raw = localStorage.getItem(USER_STORE_KEY);
+//     if (!raw) navigate("/cadastro", { replace: true });
+//   }, [navigate]);
 
   return (
     <section className="min-h-screen bg-background">
