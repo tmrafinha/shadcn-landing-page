@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Timer as TimerIcon, Volume2 } from "lucide-react";
+import { Timer as TimerIcon } from "lucide-react";
 
 const REQUIRED_PERCENT = 98;
 
-// ✅ autoplay mutado (funciona no browser)
-// ✅ controls=0 (tenta ocultar UI)
-// Obs: Vimeo pode ainda mostrar controles em hover/touch dependendo da config.
+// ✅ controles do Vimeo ligados (play + volume nativos)
+// ✅ autoplay mutado (iPhone-friendly)
 const VIMEO_SRC =
   "https://player.vimeo.com/video/1155686997" +
   "?autoplay=1" +
@@ -16,7 +15,7 @@ const VIMEO_SRC =
   "&playsinline=1" +
   "&badge=0" +
   "&autopause=0" +
-  "&controls=0" +
+  "&controls=1" + // <- aqui
   "&title=0" +
   "&byline=0" +
   "&portrait=0" +
@@ -26,24 +25,17 @@ export function ApprovedVSL() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<any>(null);
 
-  // refs para evitar "stale state" nos listeners
   const durationRef = useRef<number>(0);
   const maxWatchedRef = useRef<number>(0);
 
   const [ready, setReady] = useState(false);
-  const [, setDuration] = useState(0);
 
-  const [realPercent, setRealPercent] = useState(0); // % real (liberação)
-  const [uiPercent, setUiPercent] = useState(0); // % "vturb-style" (visual)
+  const [realPercent, setRealPercent] = useState(0);
+  const [uiPercent, setUiPercent] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
 
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const [startingAudio, setStartingAudio] = useState(false);
-
-  // --- Função: acelera o começo e estabiliza depois (visual only)
   const computeUiPercent = (real: number) => {
     let boost = 0;
-
     if (real < 25) boost = 14;
     else if (real < 50) boost = 10;
     else if (real < 70) boost = 6;
@@ -53,7 +45,6 @@ export function ApprovedVSL() {
     return Math.max(real, value);
   };
 
-  // Carrega Vimeo Player API + instancia player
   useEffect(() => {
     let cancelled = false;
 
@@ -89,83 +80,56 @@ export function ApprovedVSL() {
 
         const player = new Vimeo.Player(iframeRef.current);
         playerRef.current = player;
-
         setReady(true);
 
         // duração
         try {
           const d = Number(await player.getDuration()) || 0;
           durationRef.current = d;
-          setDuration(d);
         } catch {
-          // ignore
+          durationRef.current = 0;
         }
 
-        // garante volume alto (mesmo mutado, já deixa preparado)
+        // volume no máximo permitido (0..1)
         try {
           await player.setVolume(1);
-        } catch {
-          // ignore
-        }
+        } catch {}
 
-        // autoplay mutado (pra funcionar)
+        // autoplay mutado (se o browser bloquear, o usuário dá play no controle do Vimeo)
         try {
           await player.setMuted(true);
           await player.play();
-        } catch {
-          // se bloquear, usuário dá play manual
-        }
+        } catch {}
 
-        // timeupdate
+        // progresso real (anti-skip pelo maior tempo assistido)
         player.on("timeupdate", (data: any) => {
           const seconds = Number(data?.seconds || 0);
           const d = Number(data?.duration || durationRef.current || 0);
 
-          // maxWatched real (anti-skip)
           maxWatchedRef.current = Math.max(maxWatchedRef.current, seconds);
 
           if (d > 0) {
             const real = Math.floor((maxWatchedRef.current / d) * 100);
             setRealPercent(real);
-            setUiPercent((prev) => {
-              const next = computeUiPercent(real);
-              return Math.max(prev, next);
-            });
+            setUiPercent((prev) => Math.max(prev, computeUiPercent(real)));
           }
         });
 
-        // anti-skip: seeked
-        player.on("seeked", async (data: any) => {
+        // anti-skip (tenta avançar? volta)
+        const antiSkip = async (data: any) => {
           try {
             const seekTo = Number(data?.seconds || 0);
             const allowed = maxWatchedRef.current + 2;
-
             if (seekTo > allowed) {
               await player.setCurrentTime(maxWatchedRef.current);
             }
-          } catch {
-            // ignore
-          }
-        });
+          } catch {}
+        };
 
-        // anti-skip: seeking (mais forte)
-        player.on("seeking", async (data: any) => {
-          try {
-            const seekTo = Number(data?.seconds || 0);
-            const allowed = maxWatchedRef.current + 2;
+        player.on("seeked", antiSkip);
+        player.on("seeking", antiSkip);
 
-            if (seekTo > allowed) {
-              await player.setCurrentTime(maxWatchedRef.current);
-            }
-          } catch {
-            // ignore
-          }
-        });
-
-        // terminou
-        player.on("ended", () => {
-          setUnlocked(true);
-        });
+        player.on("ended", () => setUnlocked(true));
       } catch {
         setReady(false);
       }
@@ -179,13 +143,10 @@ export function ApprovedVSL() {
         p?.off?.("seeked");
         p?.off?.("seeking");
         p?.off?.("ended");
-      } catch {
-        // ignore
-      }
+      } catch {}
     };
   }, []);
 
-  // liberação REAL
   useEffect(() => {
     if (realPercent >= REQUIRED_PERCENT) setUnlocked(true);
   }, [realPercent]);
@@ -197,57 +158,19 @@ export function ApprovedVSL() {
     return `Assista para liberar seu acesso`;
   }, [unlocked]);
 
-  // Clique para ativar áudio e reiniciar do começo
-  const startWithAudioFromBeginning = async () => {
-    if (!playerRef.current) return;
-
-    setStartingAudio(true);
-
-    try {
-      // Reinicia tudo visual e real
-      maxWatchedRef.current = 0;
-      setRealPercent(0);
-      setUiPercent(0);
-      setUnlocked(false);
-
-      await playerRef.current.setCurrentTime(0);
-      await playerRef.current.setVolume(1);
-      await playerRef.current.setMuted(false);
-      await playerRef.current.play();
-
-      setSoundEnabled(true);
-    } catch {
-      try {
-        await playerRef.current.setMuted(false);
-        await playerRef.current.setVolume(1);
-        await playerRef.current.play();
-        setSoundEnabled(true);
-      } catch {
-        // ignore
-      }
-    } finally {
-      setStartingAudio(false);
-    }
-  };
-
   return (
     <div className="max-w-3xl mx-auto">
-
-
-      {/* Headline única (vsl-style) */}
       <div className="text-center mb-4">
         <h2 className="text-2xl md:text-4xl font-black text-foreground leading-tight">
-          Nós vamos garantir que você ganhe {" "}
-          <span className="text-primary">pelo menos 7k/mês</span> sendo um fornecedor de tecnologia em  
-          <span className="text-primary"> 60 dias</span>  ou menos
+          Nós vamos garantir que você ganhe{" "}
+          <span className="text-primary">pelo menos 7k/mês</span> sendo um fornecedor de tecnologia em{" "}
+          <span className="text-primary">60 dias</span> ou menos
         </h2>
         <p className="text-sm md:text-base text-muted-foreground mt-2">
-          Assista ao vídeo{" "}
-          <span className="text-primary">até o final</span> para entender melhor
+          Assista ao vídeo <span className="text-primary">até o final</span> para entender melhor
         </p>
       </div>
 
-      {/* Vídeo (sem card grande, bem “VSL simples”) */}
       <div className="rounded-2xl overflow-hidden border border-border bg-muted/30 relative">
         <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
           <iframe
@@ -255,42 +178,18 @@ export function ApprovedVSL() {
             src={VIMEO_SRC}
             allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-            }}
+            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
             title="vsl-pronta"
           />
         </div>
-
-        {/* Botão de áudio */}
-        {!soundEnabled && (
-          <div className="absolute bottom-3 right-3">
-            <Button
-              type="button"
-              variant="secondary"
-              className="gap-2"
-              onClick={startWithAudioFromBeginning}
-              disabled={!ready || startingAudio}
-            >
-              <Volume2 className="w-4 h-4" />
-              {startingAudio ? "Iniciando..." : "Ativar áudio (do início)"}
-            </Button>
-          </div>
-        )}
       </div>
 
-      {/* Progresso (pequeno, discreto) */}
       <div className="mt-4">
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
           <div className="flex items-center gap-2">
             <TimerIcon className="w-4 h-4" />
             <span>
-              Progresso:{" "}
-              <span className="font-semibold text-foreground">{uiPercent}%</span>
+              Progresso: <span className="font-semibold text-foreground">{uiPercent}%</span>
             </span>
           </div>
 
@@ -300,14 +199,16 @@ export function ApprovedVSL() {
         </div>
 
         <div className="w-full bg-muted h-2.5 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300 ease-out"
-            style={{ width: progressWidth }}
-          />
+          <div className="h-full bg-primary transition-all duration-300 ease-out" style={{ width: progressWidth }} />
         </div>
+
+        {!ready && (
+          <p className="mt-2 text-[11px] text-muted-foreground text-center">
+            Se o vídeo não iniciar automaticamente, toque em Play. (iPhone às vezes bloqueia autoplay)
+          </p>
+        )}
       </div>
 
-      {/* CTA */}
       <Button
         className="w-full h-14 text-lg font-black mt-5 shadow-lg hover:shadow-xl"
         disabled={!unlocked}
