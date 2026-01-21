@@ -9,11 +9,9 @@ import {
   RotateCcw,
   ChevronRight,
   Timer as TimerIcon,
-  AlertCircle,
 } from "lucide-react";
 import { LogoIcon } from "@/components/Icons";
 import { useNavigate } from "react-router-dom";
-import { ApprovedVSL } from "./ApprovedVsl";
 import { questions } from "@/mock/questions/questions.data";
 
 type StoredUser = {
@@ -28,6 +26,7 @@ const MAX_ATTEMPTS = 10;
 const QUIZ_MINUTES = 45;
 const QUIZ_SECONDS = QUIZ_MINUTES * 60;
 const USER_STORE_KEY = "goDevUser";
+const APPROVED_KEY = "goDevApproved"; // ✅ trava acesso na página /vsl
 
 export default function QuizPage() {
   const navigate = useNavigate();
@@ -56,13 +55,12 @@ export default function QuizPage() {
   useEffect(() => {
     const saved = Number(localStorage.getItem(ATTEMPT_KEY) || "0");
     setAttempts(saved);
-    if (saved >= MAX_ATTEMPTS) {
-      setLocked(true);
-    }
+    if (saved >= MAX_ATTEMPTS) setLocked(true);
   }, []);
 
   useEffect(() => {
     if (locked || showResult) return;
+
     if (secondsLeft <= 0) {
       finalize();
       return;
@@ -98,9 +96,10 @@ export default function QuizPage() {
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
-  const timeStr = `${String(minutes).padStart(2, "0")}:${String(
-    seconds
-  ).padStart(2, "0")}`;
+  const timeStr = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+    2,
+    "0"
+  )}`;
 
   const handleOptionClick = (index: number) => {
     if (selectedOption !== null || showResult || locked) return;
@@ -159,6 +158,9 @@ export default function QuizPage() {
     const gradeRaw = (score / questions.length) * 10;
     const approved = gradeRaw > 7;
 
+    // ✅ salva flag pro /vsl (evita entrar direto)
+    localStorage.setItem(APPROVED_KEY, approved ? "1" : "0");
+
     if (approved) {
       sendResultToWebhook(user);
     }
@@ -175,6 +177,7 @@ export default function QuizPage() {
   };
 
   const resetQuiz = () => {
+    localStorage.setItem(APPROVED_KEY, "0"); // ✅ reseta a aprovação
     setScore(0);
     setCurrent(0);
     setShowResult(false);
@@ -190,6 +193,18 @@ export default function QuizPage() {
     () => Math.max(0, MAX_ATTEMPTS - attempts),
     [attempts]
   );
+
+  // ✅ quando mostrar resultado e estiver aprovado, manda pra página /vsl
+  useEffect(() => {
+    if (!showResult) return;
+
+    const grade = Math.round(((score / questions.length) * 10) * 10) / 10;
+    const approved = grade > 7;
+
+    if (approved) {
+      navigate("/vsl-godev", { replace: true });
+    }
+  }, [showResult, score, navigate]);
 
   if (locked) {
     return (
@@ -209,10 +224,10 @@ export default function QuizPage() {
               em contato.
             </p>
           </div>
+
           <div className="bg-card border border-border rounded-2xl p-6">
             <p className="text-sm text-muted-foreground">
-              Caso acredite que isso é um engano, entre em contato com o
-              suporte.
+              Caso acredite que isso é um engano, entre em contato com o suporte.
             </p>
           </div>
         </div>
@@ -220,113 +235,58 @@ export default function QuizPage() {
     );
   }
 
+  // ✅ resultado: agora só mantém o REPROVADO aqui
+  // ✅ APROVADO redireciona para /vsl
   if (showResult) {
     const percentage = (score / questions.length) * 100;
     const grade = Math.round(((score / questions.length) * 10) * 10) / 10;
     const approved = grade > 7;
 
+    if (approved) {
+      // o useEffect acima já navega; isso evita flash
+      return null;
+    }
+
     return (
       <section className="min-h-screen bg-background">
-        {approved ? (
-          <div className="w-full">
-            {/* barra fixa */}
-            <div className="bg-red-600 text-white py-2.5 px-4 text-center text-sm md:text-base sticky top-0 z-50 shadow">
-              <AlertCircle className="inline w-4 h-4 mr-2 -mt-0.5" />
-              Assista ao vídeo completo para garantir sua vaga
-            </div>
-
-            <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
-              {/* topo minimal: logo pequena + badge */}
-              <div className="flex items-center justify-center gap-3 mb-5">
-                <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center">
-                  <LogoIcon size={60} />
-                </div>
-
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-green-500/30 bg-green-500/10 text-lg font-semibold text-green-700 dark:text-green-300">
-                  <div className="h-6 w-6 rounded-full bg-green-500/15 border border-green-500/25 flex items-center justify-center">
-                    <Trophy className="w-3.5 h-3.5" />
-                  </div>
-
-                  <span className="text-foreground/90 dark:text-foreground">
-                    Aprovado
-                  </span>
-
-                  <span className="text-muted-foreground">•</span>
-
-                  <span className="text-foreground/90 dark:text-foreground">
-                    Nota{" "}
-                    <span className="text-primary font-black">
-                      {grade.toFixed(1)}
-                    </span>
-                  </span>
-                </div>
-              </div>
-
-              {/* headline única */}
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-center text-foreground mb-6 leading-tight">
-                Você provou ser qualificado para entrar no{" "}
-                <span className="text-primary">Banco de Talentos</span>
-                <br />
-                <span className="font-thin">E por conta disso...</span>
-              </h1>
-
-              {/* vídeo */}
-              <div className="mb-10">
-                <ApprovedVSL />
-              </div>
-
-              {/* rodapé discreto */}
-              <p className="text-center text-xs md:text-sm text-muted-foreground">
-                {score} de {questions.length} questões corretas •{" "}
-                {Math.round(percentage)}% de aproveitamento
-              </p>
-            </div>
+        <div className="max-w-2xl mx-auto px-4 py-16">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+              Nota: {grade.toFixed(1)}/10
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Você precisa de no mínimo 7.0 para ser aprovado
+            </p>
           </div>
-        ) : (
-          // ❌ REPROVADO (mantido igual)
-          <div className="max-w-2xl mx-auto px-4 py-16">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4">
-                Nota: {grade.toFixed(1)}/10
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Você precisa de no mínimo 7.0 para ser aprovado
-              </p>
+
+          <div className="bg-card border border-border rounded-xl p-8 mb-8">
+            <div className="w-full bg-muted h-3 rounded-full overflow-hidden mb-6">
+              <div className="h-full bg-primary" style={{ width: `${percentage}%` }} />
             </div>
 
-            <div className="bg-card border border-border rounded-xl p-8 mb-8">
-              <div className="w-full bg-muted h-3 rounded-full overflow-hidden mb-6">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
+            <p className="text-center text-muted-foreground mb-6">
+              {score} de {questions.length} questões corretas ({Math.round(percentage)}%)
+            </p>
 
-              <p className="text-center text-muted-foreground mb-6">
-                {score} de {questions.length} questões corretas (
-                {Math.round(percentage)}%)
-              </p>
-
-              <p className="text-sm text-muted-foreground text-center">
-                Você ainda tem{" "}
-                <span className="font-bold">{attemptsLeft}</span> tentativa
-                {attemptsLeft > 1 ? "s" : ""} disponível
-                {attemptsLeft > 1 ? "eis" : ""}
-              </p>
-            </div>
-
-            {attemptsLeft > 0 && (
-              <Button onClick={resetQuiz} className="w-full h-14 text-lg font-bold">
-                <RotateCcw className="w-5 h-5 mr-2" />
-                Tentar Novamente
-              </Button>
-            )}
+            <p className="text-sm text-muted-foreground text-center">
+              Você ainda tem <span className="font-bold">{attemptsLeft}</span>{" "}
+              tentativa{attemptsLeft !== 1 ? "s" : ""} disponível
+              {attemptsLeft !== 1 ? "eis" : ""}
+            </p>
           </div>
-        )}
+
+          {attemptsLeft > 0 && (
+            <Button onClick={resetQuiz} className="w-full h-14 text-lg font-bold">
+              <RotateCcw className="w-5 h-5 mr-2" />
+              Tentar Novamente
+            </Button>
+          )}
+        </div>
       </section>
     );
   }
 
+  // ✅ QUIZ NORMAL
   return (
     <section className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-3xl w-full">
@@ -336,6 +296,7 @@ export default function QuizPage() {
               <div className="rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg border border-border">
                 <LogoIcon size={24} />
               </div>
+
               <div>
                 <div className="text-muted-foreground text-sm">{user?.name}</div>
                 <div className="text-foreground font-semibold">
@@ -358,8 +319,7 @@ export default function QuizPage() {
           </div>
 
           <div className="text-xs text-muted-foreground mt-4 text-center">
-            Você tem {QUIZ_MINUTES} minutos para concluir. O teste encerra
-            automaticamente quando o tempo acabar.
+            Você tem {QUIZ_MINUTES} minutos para concluir. O teste encerra automaticamente quando o tempo acabar.
           </div>
         </div>
 
@@ -388,9 +348,7 @@ export default function QuizPage() {
                       : isSelected
                       ? "bg-primary/20 border-primary text-primary"
                       : "bg-muted/50 border-border text-foreground hover:bg-muted hover:border-primary/50"
-                  } ${
-                    selectedOption !== null ? "cursor-not-allowed" : "cursor-pointer"
-                  }`}
+                  } ${selectedOption !== null ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <div className="flex items-center justify-between">
                     <span>{opt}</span>
@@ -405,25 +363,23 @@ export default function QuizPage() {
           {showExplanation && (
             <div
               className={`p-5 rounded-xl border-2 animate-in slide-in-from-bottom duration-500 ${
-                isCorrect
-                  ? "bg-green-500/10 border-green-500/30"
-                  : "bg-primary/10 border-primary/30"
+                isCorrect ? "bg-green-500/10 border-green-500/30" : "bg-primary/10 border-primary/30"
               }`}
             >
               <div className="flex items-start gap-3">
                 <div className={`p-2 rounded-lg ${isCorrect ? "bg-green-500" : "bg-primary"}`}>
                   <Brain className="w-5 h-5 text-white" />
                 </div>
+
                 <div className="flex-1">
                   <h4
                     className={`font-semibold mb-2 ${
-                      isCorrect
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-primary"
+                      isCorrect ? "text-green-600 dark:text-green-400" : "text-primary"
                     }`}
                   >
                     {isCorrect ? "Correto! 🎉" : "Atenção! 📚"}
                   </h4>
+
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {questions[current].explanation}
                   </p>

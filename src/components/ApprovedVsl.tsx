@@ -194,7 +194,7 @@ export function ApprovedVSL() {
 
   const buttonLabel = useMemo(() => {
     if (unlocked) return "Garantir meu acesso";
-    return `Assista para liberar`;
+    return `Assista para liberar seu acesso`;
   }, [unlocked]);
 
   // Clique para ativar áudio e reiniciar do começo
@@ -243,8 +243,7 @@ export function ApprovedVSL() {
         </h2>
         <p className="text-sm md:text-base text-muted-foreground mt-2">
           Assista ao vídeo{" "}
-          <span className="text-primary">até o final</span> para liberar o
-          próximo passo
+          <span className="text-primary">até o final</span> para entender melhor
         </p>
       </div>
 

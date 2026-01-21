@@ -5,7 +5,7 @@ interface Question {
   explanation: string;
 }
 
-export const questions: Question[] = [
+export const questions2: Question[] = [
   // 1. Git/DevOps
   {
     question:
@@ -145,13 +145,13 @@ export const questions: Question[] = [
     explanation: "`docker build` cria uma imagem a partir do Dockerfile.",
   },
   // 15. Kubernetes
-  {
-    question:
-      "No Kubernetes, qual objeto expõe o Pod para acesso de rede estável?",
-    options: ["Deployment", "ConfigMap", "Service", "Secret"],
-    correctIndex: 2,
-    explanation: "Services fornecem uma abstração de rede estável para Pods.",
-  },
+  // {
+  //   question:
+  //     "No Kubernetes, qual objeto expõe o Pod para acesso de rede estável?",
+  //   options: ["Deployment", "ConfigMap", "Service", "Secret"],
+  //   correctIndex: 2,
+  //   explanation: "Services fornecem uma abstração de rede estável para Pods.",
+  // },
   // 16. React store
   {
     question:
@@ -287,14 +287,14 @@ export const questions: Question[] = [
     explanation: "O identificador do recurso pertence ao path, ex: `/users/123`.",
   },
   // 27. Transactions
-  {
-    question:
-      "Para garantir atomicidade de múltiplas operações em um banco relacional, usamos:",
-    options: ["Views", "Triggers", "Transações", "Procedures sempre"],
-    correctIndex: 2,
-    explanation:
-      "Transações garantem as propriedades ACID: atomicidade, consistência, isolamento e durabilidade.",
-  },
+  // {
+  //   question:
+  //     "Para garantir atomicidade de múltiplas operações em um banco relacional, usamos:",
+  //   options: ["Views", "Triggers", "Transações", "Procedures sempre"],
+  //   correctIndex: 2,
+  //   explanation:
+  //     "Transações garantem as propriedades ACID: atomicidade, consistência, isolamento e durabilidade.",
+  // },
   // 28. DevOps Observabilidade
   {
     question:
@@ -556,7 +556,7 @@ export const questions: Question[] = [
   },
 ];
 
-export const questions2: Question[] = [
+export const questions: Question[] = [
   // 1. Git/DevOps
   {
     question:
