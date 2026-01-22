@@ -2,24 +2,28 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Timer as TimerIcon } from "lucide-react";
+import { Timer as TimerIcon, Play } from "lucide-react";
 
 const REQUIRED_PERCENT = 98;
 
-// ✅ controles do Vimeo ligados (play + volume nativos)
-// ✅ autoplay mutado (iPhone-friendly)
+// ✅ sem controles do Vimeo (sem barra)
+// ✅ sem autoplay (pausado por padrão)
+// ✅ playsinline iPhone-friendly
 const VIMEO_SRC =
   "https://player.vimeo.com/video/1155686997" +
-  "?autoplay=1" +
-  "&muted=1" +
+  "?autoplay=0" + // <- pausado por padrão
+  "&muted=0" + // <- vamos controlar no clique
   "&playsinline=1" +
   "&badge=0" +
   "&autopause=0" +
-  "&controls=1" + // <- aqui
+  "&controls=0" + // <- sem barra/controles
   "&title=0" +
   "&byline=0" +
   "&portrait=0" +
   "&keyboard=0";
+
+const REDIRECT_URL =
+  "https://banco-de-talentos-godev.vercel.app/sign-in?redirect=%2F";
 
 export function ApprovedVSL() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -33,6 +37,9 @@ export function ApprovedVSL() {
   const [realPercent, setRealPercent] = useState(0);
   const [uiPercent, setUiPercent] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
+
+  // ✅ overlay botão iniciar
+  const [started, setStarted] = useState(false);
 
   const computeUiPercent = (real: number) => {
     let boost = 0;
@@ -90,15 +97,9 @@ export function ApprovedVSL() {
           durationRef.current = 0;
         }
 
-        // volume no máximo permitido (0..1)
+        // ✅ garante que começa pausado
         try {
-          await player.setVolume(1);
-        } catch {}
-
-        // autoplay mutado (se o browser bloquear, o usuário dá play no controle do Vimeo)
-        try {
-          await player.setMuted(true);
-          await player.play();
+          await player.pause();
         } catch {}
 
         // progresso real (anti-skip pelo maior tempo assistido)
@@ -154,20 +155,40 @@ export function ApprovedVSL() {
   const progressWidth = `${Math.min(100, Math.max(0, uiPercent))}%`;
 
   const buttonLabel = useMemo(() => {
-    if (unlocked) return "Garantir meu acesso";
-    return `Assista para liberar seu acesso`;
+    if (unlocked) return "Acessar gratuitamente o Banco de Talentos";
+    return "Assista para liberar seu acesso gratuito";
   }, [unlocked]);
+
+  // ✅ clique único: inicia com volume máximo e som ligado
+  const handleStart = async () => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    try {
+      // iOS exige que som + play aconteça no mesmo gesto do usuário
+      await player.setVolume(1);
+      await player.setMuted(false);
+      await player.play();
+
+      setStarted(true);
+    } catch {
+      // se falhar, ainda esconde overlay? melhor manter visível
+      setStarted(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-4">
         <h2 className="text-2xl md:text-4xl font-black text-foreground leading-tight">
-          Nós vamos garantir que você ganhe{" "}
-          <span className="text-primary">pelo menos 7k/mês</span> sendo um fornecedor de tecnologia em{" "}
-          <span className="text-primary">60 dias</span> ou menos
+          Em poucos minutos, vamos liberar acesso{" "}
+          <span className="text-primary">100% gratuito</span> ao{" "}
+          <span className="text-primary">Banco de Talentos GoDev</span> <br />
         </h2>
-        <p className="text-sm md:text-base text-muted-foreground mt-2">
-          Assista ao vídeo <span className="text-primary">até o final</span> para entender melhor
+
+        <p className="text-lg md:text-lg text-muted-foreground mt-2">
+          Você precisa assistir o vídeo{" "}
+          <span className="text-primary">até o final</span> para liberar o acesso.
         </p>
       </div>
 
@@ -178,9 +199,29 @@ export function ApprovedVSL() {
             src={VIMEO_SRC}
             allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
-            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+            }}
             title="vsl-pronta"
           />
+
+          {/* ✅ overlay iniciar */}
+          {!started && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <button
+                type="button"
+                onClick={handleStart}
+                className="px-6 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg md:text-xl shadow-xl flex items-center gap-3 hover:opacity-95 active:scale-[0.99]"
+              >
+                <Play className="w-6 h-6" />
+                Iniciar vídeo
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -189,7 +230,8 @@ export function ApprovedVSL() {
           <div className="flex items-center gap-2">
             <TimerIcon className="w-4 h-4" />
             <span>
-              Progresso: <span className="font-semibold text-foreground">{uiPercent}%</span>
+              Progresso:{" "}
+              <span className="font-semibold text-foreground">{uiPercent}%</span>
             </span>
           </div>
 
@@ -199,12 +241,15 @@ export function ApprovedVSL() {
         </div>
 
         <div className="w-full bg-muted h-2.5 rounded-full overflow-hidden">
-          <div className="h-full bg-primary transition-all duration-300 ease-out" style={{ width: progressWidth }} />
+          <div
+            className="h-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: progressWidth }}
+          />
         </div>
 
         {!ready && (
           <p className="mt-2 text-[11px] text-muted-foreground text-center">
-            Se o vídeo não iniciar automaticamente, toque em Play. (iPhone às vezes bloqueia autoplay)
+            Se o vídeo não carregar, recarregue a página e toque em “Iniciar vídeo com som”.
           </p>
         )}
       </div>
@@ -215,7 +260,7 @@ export function ApprovedVSL() {
         type="button"
         onClick={() => {
           if (!unlocked) return;
-          window.location.href = "https://pay.kiwify.com.br/J4oFiud";
+          window.location.href = REDIRECT_URL;
         }}
       >
         {buttonLabel}
